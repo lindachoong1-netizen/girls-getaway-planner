@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Girls' Getaway Planner</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a18; min-height: 100vh; padding: 24px 16px; }
+  .container { max-width: 760px; margin: 0 auto; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .header-icon { font-size: 28px; }
+  .header h1 { font-size: 22px; font-weight: 600; color: #1a1a18; }
+  .header p { font-size: 13px; color: #6b6b65; margin-top: 2px; }
+  .section { background: #fff; border: 1px solid #e0dfd8; border-radius: 12px; padding: 16px 20px; margin-bottom: 14px; }
+  .section h2 { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: #1a1a18; display: flex; align-items: center; gap: 8px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .person-card { background: #f5f4f0; border-radius: 10px; padding: 12px; display: flex; align-items: flex-start; gap: 10px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px; flex-shrink: 0; }
+  .av-h { background: #dbeafe; color: #1d4ed8; }
+  .av-a { background: #fef3c7; color: #b45309; }
+  .av-l { background: #dcfce7; color: #166534; }
+  .person-name { font-size: 14px; font-weight: 600; }
+  .person-loc { font-size: 12px; color: #6b6b65; }
+  .person-addr { font-size: 11px; color: #9b9b93; margin-top: 2px; }
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .metric { background: #f5f4f0; border-radius: 8px; padding: 12px; text-align: center; }
+  .metric-num { font-size: 16px; font-weight: 600; color: #1a1a18; line-height: 1.3; }
+  .metric-lbl { font-size: 11px; color: #6b6b65; margin-top: 3px; }
+  .midpoint-note { font-size: 12px; color: #6b6b65; margin-top: 10px; line-height: 1.6; }
+  .dest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .dest-card { background: #fff; border: 1px solid #e0dfd8; border-radius: 10px; padding: 14px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
+  .dest-card:hover { border-color: #93c5fd; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .dest-card.selected { border: 2px solid #3b82f6; }
+  .dest-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .dest-sub { font-size: 12px; color: #6b6b65; margin-bottom: 8px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+  .tag-blue { background: #dbeafe; color: #1d4ed8; }
+  .tag-green { background: #dcfce7; color: #166534; }
+  .tag-amber { background: #fef3c7; color: #b45309; }
+  .dist-row { font-size: 11px; color: #6b6b65; margin-bottom: 10px; line-height: 1.6; }
+  .vote-area { display: flex; align-items: center; gap: 8px; }
+  .vote-btn { font-size: 12px; padding: 5px 14px; border: 1px solid #d1d0c8; border-radius: 8px; background: #fff; color: #1a1a18; cursor: pointer; transition: background 0.15s; }
+  .vote-btn:hover { background: #f5f4f0; }
+  .vote-btn.voted { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+  .vote-count { font-size: 12px; color: #6b6b65; }
+  .checklist { display: flex; flex-direction: column; gap: 8px; }
+  .check-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #1a1a18; cursor: pointer; }
+  .check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #3b82f6; cursor: pointer; flex-shrink: 0; }
+  .check-item.done { color: #9b9b93; text-decoration: line-through; }
+  .notes-area { width: 100%; font-size: 13px; padding: 10px 12px; border: 1px solid #e0dfd8; border-radius: 8px; background: #f5f4f0; color: #1a1a18; resize: none; font-family: inherit; line-height: 1.6; }
+  .notes-area:focus { outline: none; border-color: #93c5fd; background: #fff; }
+  .share-note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; font-size: 13px; color: #1e40af; line-height: 1.6; }
+  .share-note strong { font-weight: 600; }
+  .divider { border: none; border-top: 1px solid #e0dfd8; margin: 14px 0; }
+  .footer { font-size: 12px; color: #9b9b93; text-align: center; margin-top: 8px; }
+  @media (max-width: 540px) {
+    .grid3 { grid-template-columns: 1fr; }
+    .dest-grid { grid-template-columns: 1fr; }
+    .grid2 { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-icon">🗺️</div>
+    <div>
+      <h1>Girls' Getaway Planner</h1>
+      <p>Finding the sweet spot between Lafayette, Mount Prospect &amp; Aurora</p>
+    </div>
+  </div>
+
+  <div class="share-note">
+    <strong>How to vote:</strong> Click a destination card to highlight it, then hit the Vote button. Share this page link with Heather, Angie, and Linda so everyone can weigh in!
+  </div>
+
+  <!-- People -->
+  <div class="section">
+    <h2>👩‍👩‍👧 The crew</h2>
+    <div class="grid3">
+      <div class="person-card">
+        <div class="avatar av-h">H</div>
+        <div>
+          <div class="person-name">Heather</div>
+          <div class="person-loc">Lafayette, IN</div>
+          <div class="person-addr">1592 Sandstone Ct</div>
+        </div>
+      </div>
+      <div class="person-card">
+        <div class="avatar av-a">A</div>
+        <div>
+          <div class="person-name">Angie</div>
+          <div class="person-loc">Mount Prospect, IL</div>
+          <div class="person-addr">1217 W Green Acres Ln</div>
+        </div>
+      </div>
+      <div class="person-card">
+        <div class="avatar av-l">L</div>
+        <div>
+          <div class="person-name">Linda</div>
+          <div class="person-loc">Aurora, OH</div>
+          <div class="person-addr">522 Duneden Dr</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Midpoint -->
+  <div class="section">
+    <h2>🎯 Geographic midpoint</h2>
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-num">Gary / Valparaiso, IN</div><div class="metric-lbl">Nearest metro to midpoint</div></div>
+      <div class="metric"><div class="metric-num">~2.5 hrs</div><div class="metric-lbl">Max drive time (est.)</div></div>
+      <div class="metric"><div class="metric-num">~160 mi</div><div class="metric-lbl">Max distance from midpoint</div></div>
+    </div>
+    <p class="midpoint-note">The true geographic center falls near the Indiana–Ohio–Illinois convergence zone — putting the Indiana Dunes / South Shore area or Indiana lake country in play as ideal sweet spots.</p>
+  </div>
+
+  <!-- Destinations -->
+  <div class="section">
+    <h2>🏕️ Vote for your favorite destination</h2>
+    <div class="dest-grid">
+
+      <div class="dest-card" id="card1" onclick="toggleSelect('card1')">
+        <div class="dest-title">Indiana Dunes area</div>
+        <div class="dest-sub">Chesterton / Portage, IN</div>
+        <div class="tags">
+          <span class="tag tag-blue">Kayaking</span>
+          <span class="tag tag-green">Cabin rentals</span>
+          <span class="tag tag-amber">State park</span>
+        </div>
+        <div class="dist-row">🚗 Heather ~1.5h · Angie ~1h · Linda ~3h</div>
+        <div class="vote-area">
+          <button class="vote-btn" id="vote1" onclick="event.stopPropagation(); castVote(1)">Vote</button>
+          <span class="vote-count" id="vc1"></span>
+        </div>
+      </div>
+
+      <div class="dest-card" id="card2" onclick="toggleSelect('card2')">
+        <div class="dest-title">Kankakee River State Park</div>
+        <div class="dest-sub">Bourbonnais / Kankakee, IL</div>
+        <div class="tags">
+          <span class="tag tag-blue">Kayaking</span>
+          <span class="tag tag-green">Cabin stays</span>
+          <span class="tag tag-blue">River scenery</span>
+        </div>
+        <div class="dist-row">🚗 Heather ~1.5h · Angie ~1h · Linda ~3.5h</div>
+        <div class="vote-area">
+          <button class="vote-btn" id="vote2" onclick="event.stopPropagation(); castVote(2)">Vote</button>
+          <span class="vote-count" id="vc2"></span>
+        </div>
+      </div>
+
+      <div class="dest-card" id="card3" onclick="toggleSelect('card3')">
+        <div class="dest-title">Tippecanoe River area</div>
+        <div class="dest-sub">Winamac / Monticello, IN</div>
+        <div class="tags">
+          <span class="tag tag-blue">Kayaking</span>
+          <span class="tag tag-green">Rural cabins</span>
+          <span class="tag tag-amber">Very peaceful</span>
+        </div>
+        <div class="dist-row">🚗 Heather ~1h · Angie ~2h · Linda ~3h</div>
+        <div class="vote-area">
+          <button class="vote-btn" id="vote3" onclick="event.stopPropagation(); castVote(3)">Vote</button>
+          <span class="vote-count" id="vc3"></span>
+        </div>
+      </div>
+
+      <div class="dest-card" id="card4" onclick="toggleSelect('card4')">
+        <div class="dest-title">Starved Rock area</div>
+        <div class="dest-sub">Utica / Ottawa, IL</div>
+        <div class="tags">
+          <span class="tag tag-blue">Kayaking</span>
+          <span class="tag tag-green">Lodges</span>
+          <span class="tag tag-blue">Canyons &amp; waterfalls</span>
+        </div>
+        <div class="dist-row">🚗 Heather ~2h · Angie ~1.5h · Linda ~3.5h</div>
+        <div class="vote-area">
+          <button class="vote-btn" id="vote4" onclick="event.stopPropagation(); castVote(4)">Vote</button>
+          <span class="vote-count" id="vc4"></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Checklist + Notes -->
+  <div class="grid2">
+    <div class="section">
+      <h2>✅ Planning checklist</h2>
+      <div class="checklist" id="checklist"></div>
+    </div>
+    <div class="section">
+      <h2>📝 Shared notes</h2>
+      <textarea class="notes-area" rows="8" placeholder="Add ideas, preferred dates, dietary needs, things to pack..."></textarea>
+    </div>
+  </div>
+
+  <div class="footer">Built with Claude · Share this file via Netlify Drop for a live URL</div>
+
+</div>
+
+<script>
+  const checks = [
+    'Pick a destination',
+    'Agree on dates',
+    'Book cabin / lodging',
+    'Plan kayak rental or launch spot',
+    'Decide on meals (cook-in vs eat out)',
+    'Pack list & carpooling plan',
+    'Share final directions to everyone'
+  ];
+
+  const cl = document.getElementById('checklist');
+  checks.forEach((t, i) => {
+    const label = document.createElement('label');
+    label.className = 'check-item';
+    label.id = 'cl' + i;
+    label.innerHTML = `<input type="checkbox" onchange="toggleCheck(${i})"> ${t}`;
+    cl.appendChild(label);
+  });
+
+  function toggleCheck(i) {
+    document.getElementById('cl' + i).classList.toggle('done');
+  }
+
+  const votes = { 1: 0, 2: 0, 3: 0, 4: 0 };
+  const voted = new Set();
+
+  function castVote(n) {
+    if (voted.has(n)) return;
+    voted.add(n);
+    votes[n]++;
+    const btn = document.getElementById('vote' + n);
+    btn.classList.add('voted');
+    btn.textContent = 'Voted ✓';
+    [1, 2, 3, 4].forEach(i => {
+      const v = votes[i];
+      document.getElementById('vc' + i).textContent = v > 0 ? v + (v === 1 ? ' vote' : ' votes') : '';
+    });
+  }
+
+  function toggleSelect(id) {
+    document.getElementById(id).classList.toggle('selected');
+  }
+</script>
+</body>
+</html>
